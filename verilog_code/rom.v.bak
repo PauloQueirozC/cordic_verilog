@@ -16,7 +16,7 @@ module rom (
   assign data = (ce && read_en) ? mem[address] : 32'b0;
   
   initial begin
-    $readmemb("ang_input0a360.list", mem);
+    $readmemb("ang_input0a360.list", mem); 
   end
   
 endmodule
