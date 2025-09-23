@@ -1,1 +1,0 @@
-module main(Dig4, Dig3, Dig2, Dig1, Dig0, Start, Reset, x_out, clk_50, angle, x_in)
