@@ -8,39 +8,7 @@
 					"strict" : false
 				},
 				{
-					"name" : "Dig4[0]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[1]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[2]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[3]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[4]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[5]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig4[6]",
-					"strict" : false
-				},
-				{
 					"name" : "Dig3[0]",
-					"strict" : false
-				},
-				{
-					"name" : "Dig3[1]",
 					"strict" : false
 				},
 				{
@@ -149,10 +117,6 @@
 				},
 				{
 					"name" : "Done",
-					"strict" : false
-				},
-				{
-					"name" : "angle[9]",
 					"strict" : false
 				},
 				{

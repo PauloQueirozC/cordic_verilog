@@ -1,0 +1,16 @@
+#Intel Quartus generated files
+
+# 1. Pastas de Compilação
+db/
+incremental_db/
+
+# 2. Pasta de Saída
+output_files/
+
+# 3. Configurações do Usuário
+*.qws
+
+# 4. Arquivos Temporários e de Simulação
+*.bak
+*.vwf
+simulation/

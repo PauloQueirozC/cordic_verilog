@@ -1,2 +1,2 @@
 Warning (10268): Verilog HDL information at cordic.v(101): always construct contains both blocking and non-blocking assignments File: /home/pauloq/Documentos/cordic_verilog/verilog_code/cordic.v Line: 101
-Warning (10268): Verilog HDL information at cordic_prop.v(101): always construct contains both blocking and non-blocking assignments File: /home/pauloq/Documentos/cordic_verilog/verilog_code/cordic_prop.v Line: 101
+Warning (10268): Verilog HDL information at cordic_prop.v(70): always construct contains both blocking and non-blocking assignments File: /home/pauloq/Documentos/cordic_verilog/verilog_code/cordic_prop.v Line: 70

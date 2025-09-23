@@ -1,171 +1,142 @@
-/* 
-Ricardo Aguiar, 17/04/2019
-Cordic
-input ang(z0) 0 a 360; z0 = (ang/360)*2^32;
-output: sin_z0/32000; cos_z0/32000
-*/
+/*
+ * Módulo CORDIC Redesenhado com Base de 9 Bits
+ * Autor: Gemini AI (baseado no código de Ricardo Aguiar)
+ * Data:  20 de setembro de 2025
+ *
+ * Descrição:
+ * - Núcleo de cálculo de ângulo redesenhado para 9 bits.
+ * - Mapeamento de 360 graus para 9 bits (0-511).
+ * - Tabela atan_table recalculada para 9 bits.
+ * - Lógica de quadrantes reintroduzida para rotação completa.
+ * - Saídas de 11 bits (cos/sin) e 8 iterações (0 a 7).
+ */
 
-`define theta_0 32'b00100000000000000000000000000000
-`define theta_1 32'b00010010111001000000010100011101
-`define theta_2 32'b00001001111110110011100001011011 
-`define theta_3 32'b00000101000100010001000111010100
-`define theta_4 32'b00000010100010110000110101000011
-`define theta_5 32'b00000001010001011101011111100001
-`define theta_6 32'b00000000101000101111011000011110
-`define theta_7 32'b00000000010100010111110001010101
-`define theta_8 32'b00000000001010001011111001010011
-`define theta_9 32'b00000000000101000101111100101110
-`define theta_10 32'b00000000000010100010111110011000
-`define theta_11 32'b00000000000001010001011111001100
-`define theta_12 32'b00000000000000101000101111100110
-`define theta_13 32'b00000000000000010100010111110011
-`define theta_14 32'b00000000000000001010001011111001
-`define theta_15 32'b00000000000000000101000101111101
-`define theta_16 32'b00000000000000000010100010111110
-`define theta_17 32'b00000000000000000001010001011111
-`define theta_18 32'b00000000000000000000101000101111
-`define theta_19 32'b00000000000000000000010100011000
-`define theta_20 32'b00000000000000000000001010001100
-`define theta_21 32'b00000000000000000000000101000110
-`define theta_22 32'b00000000000000000000000010100011
-`define theta_23 32'b00000000000000000000000001010001
-`define theta_24 32'b00000000000000000000000000101000
-`define theta_25 32'b00000000000000000000000000010100
-`define theta_26 32'b00000000000000000000000000001010
-`define theta_27 32'b00000000000000000000000000000101
-`define theta_28 32'b00000000000000000000000000000010
-`define theta_29 32'b00000000000000000000000000000001
-`define theta_30 32'b00000000000000000000000000000000
+// MUDANÇA: Novos defines para a tabela de 9 bits
+`define theta_0_9b 9'd64 // atan(2^0) = 45°    -> (45/360)*512 = 64
+`define theta_1_9b 9'd38 // atan(2^-1)= 26.56° -> (26.56/360)*512 = 38
+`define theta_2_9b 9'd20 // atan(2^-2)= 14.04° -> (14.04/360)*512 = 20
+`define theta_3_9b 9'd10 // atan(2^-3)= 7.12°  -> (7.12/360)*512 = 10
+`define theta_4_9b 9'd5  // atan(2^-4)= 3.58°  -> (3.58/360)*512 = 5
+`define theta_5_9b 9'd3  // atan(2^-5)= 1.79°  -> (1.79/360)*512 = 3
+`define theta_6_9b 9'd1  // atan(2^-6)= 0.90°  -> (0.90/360)*512 = 1
+`define theta_7_9b 9'd1  // atan(2^-7)= 0.45°  -> (0.45/360)*512 = 1
 
-module cordic_prop (cos_z0,sin_z0,done,z0,start,clock,reset);
-  
-  parameter width = 16;
-  // input 
-  input signed [31:0] z0;
-  input start;
-  input clock;
-  input reset;
-  //output 
-  output signed [width:0] cos_z0;
-  output signed [width:0] sin_z0;
-  output done;
-  
-  reg signed [width:0] sin_z0;
-  reg signed [width:0] cos_z0;
-  reg done;
- 
-  reg [5:0] i; // contador
-  reg  state;
-  reg signed [31:0] dz;
-  reg signed [width-1:0] dx;
-  reg signed [width-1:0] dy;
-  reg signed [width-1:0] y;
-  reg signed [width-1:0] x;
-  reg signed [31:0] z;
-  
-  wire signed [31:0] atan_table [0:30];
+module cordic_prop (
+    // Saídas
+    cos_z0, sin_z0, done,
+    // Entradas
+    z0, start, clock, reset
+);
 
-  assign atan_table[00] = `theta_0; 
-  assign atan_table[01] = `theta_1;
-  assign atan_table[02] = `theta_2;
-  assign atan_table[03] = `theta_3;
-  assign atan_table[04] = `theta_4;
-  assign atan_table[05] = `theta_5;
-  assign atan_table[06] = `theta_6;
-  assign atan_table[07] = `theta_7;
-  assign atan_table[08] = `theta_8;
-  assign atan_table[09] = `theta_9;
-  assign atan_table[10] = `theta_10;
-  assign atan_table[11] = `theta_11;
-  assign atan_table[12] = `theta_12;
-  assign atan_table[13] = `theta_13;
-  assign atan_table[14] = `theta_14;
-  assign atan_table[15] = `theta_15;
-  assign atan_table[16] = `theta_16;
-  assign atan_table[17] = `theta_17;
-  assign atan_table[18] = `theta_18;
-  assign atan_table[19] = `theta_19;
-  assign atan_table[20] = `theta_20;
-  assign atan_table[21] = `theta_21;
-  assign atan_table[22] = `theta_22;
-  assign atan_table[23] = `theta_23;
-  assign atan_table[24] = `theta_24;
-  assign atan_table[25] = `theta_25;
-  assign atan_table[26] = `theta_26;
-  assign atan_table[27] = `theta_27;
-  assign atan_table[28] = `theta_28;
-  assign atan_table[29] = `theta_29;
-  assign atan_table[30] = `theta_30;
-  
-  
-always @(posedge clock or negedge reset) begin
- 
-    if (!reset) begin
-        state = 1'b0;
-        cos_z0 <= 0;
-        sin_z0 <= 0;
-        done <= 0;
-        x = 0;
-        y = 0;
-        z = 0;
-        i = 0;
-    end
-    else begin
-        case (state)
-            1'b0: begin
-                if (!start) begin
-                  if(z0[31:30] == 2'b00 || z0[31:30] == 2'b11)begin // quadrante 0 a 89 e 270 a 360
-                  	x = (32000/1.647);
-                   	y = 0;
-                    z = z0;
-                  end else if(z0[31:30] == 2'b01)begin // quadrante 90 a 179
-                  	x = -0;
-                   	y = (32000/1.647);
-                    z = (z0 - 32'b01000000000000000000000000000000); // sub pi/2
-                   
-                  end else if(z0[31:30] == 2'b10)begin // quadrante 180 a 269
-                  	x = 0;
-                   	y = (32000/1.647);
-                    z = (z0 + 32'b01000000000000000000000000000000); //add pi/2
-                   
-                  end 
-                  i = 0;
-                  done <= 0;
-                  state = 1'b1;
-                end
-            end
-            1'b1: begin
-                dx = (y >>>  i);
-                dy = (x >>>  i);
-                dz = atan_table[i];
-                
-                if ((z > 0)) begin
-                    x = x - dx;
-                    y = y + dy;
-                    z = z - dz;
-                end
-                else begin
-                    x = x + dx;
-                    y = y - dy;
-                    z = z + dz;
-                end
-                
-                if ((i == (width - 2))) begin
-                    if(z0[31:30] == 2'b10)begin // quadrante 180 a 269
-                	    cos_z0 <= -x;
-                        sin_z0 <= -y;                   
-                    end else begin
-                	    cos_z0 <= x;
-                        sin_z0 <= y;
+    // --- Declaração de Portas ---
+    input signed [8:0] z0;
+    input start;
+    input clock;
+    input reset;
+    output signed [10:0] cos_z0;
+    output signed [10:0] sin_z0;
+    output done;
+
+    // --- Registradores de Saída ---
+    reg signed [10:0] sin_z0;
+    reg signed [10:0] cos_z0;
+    reg done;
+
+    // --- Registradores Internos ---
+    reg [3:0] i;
+    reg  state;
+    reg signed [8:0] dz;
+    reg signed [10:0] dx;
+    reg signed [10:0] dy;
+    reg signed [10:0] y;
+    reg signed [10:0] x;
+    reg signed [8:0] z;
+
+    // MUDANÇA: Tabela de ângulos com 9 bits
+    wire signed [8:0] atan_table [0:7];
+
+    assign atan_table[0] = `theta_0_9b;
+    assign atan_table[1] = `theta_1_9b;
+    assign atan_table[2] = `theta_2_9b;
+    assign atan_table[3] = `theta_3_9b;
+    assign atan_table[4] = `theta_4_9b;
+    assign atan_table[5] = `theta_5_9b;
+    assign atan_table[6] = `theta_6_9b;
+    assign atan_table[7] = `theta_7_9b;
+
+    // Constante para 90 graus em 9 bits: (90/360)*512 = 128
+    localparam PI_DIV_2 = 9'd128;
+
+    always @(posedge clock or posedge reset) begin
+        if (reset) begin
+            state <= 1'b0;
+            cos_z0 <= 0;
+            sin_z0 <= 0;
+            done <= 0;
+            x <= 0;
+            y <= 0;
+            z <= 0;
+            i <= 0;
+        end
+        else begin
+            case (state)
+                1'b0: begin
+                    if (start) begin
+                        // MUDANÇA: Lógica de quadrantes restaurada para 9 bits
+                        // Usa z0[8:7] para determinar o quadrante
+                        if(z0[8:7] == 2'b00 || z0[8:7] == 2'b11) begin // Q1 (0-89) e Q4 (270-359)
+                            x <= 607; // 1000 / 1.646
+                            y <= 0;
+                            z <= z0;
+                        end else if(z0[8:7] == 2'b01) begin // Q2 (90-179)
+                            x <= 0;
+                            y <= 607;
+                            z <= z0 - PI_DIV_2; // Subtrai 90 graus
+                        end else if(z0[8:7] == 2'b10) begin // Q3 (180-269)
+                            x <= 0;
+                            y <= 607;
+                            z <= z0 + PI_DIV_2; // Adiciona 90 graus (para rotação reversa)
+                        end
+                        
+                        i <= 0;
+                        done <= 0;
+                        state <= 1'b1;
                     end
-                    state = 1'b0;
-                    done <= 1;
-                end else begin
-                    i = i + 1;
                 end
-            end
-        endcase
-    end
-end
+                
+                1'b1: begin
+                    dx = (y >>> i);
+                    dy = (x >>> i);
+                    dz = atan_table[i];
 
+                    if ((z >= 0)) begin
+                        x <= x - dx;
+                        y <= y + dy;
+                        z <= z - dz;
+                    end
+                    else begin
+                        x <= x + dx;
+                        y <= y - dy;
+                        z <= z + dz;
+                    end
+
+                    if (i == 7) begin
+                        // MUDANÇA: Correção de sinal para Q3 restaurada
+                        if(z0[8:7] == 2'b10) begin
+                            cos_z0 <= -x;
+                            sin_z0 <= -y;
+                        end else begin
+                            cos_z0 <= x;
+                            sin_z0 <= y;
+                        end
+                        
+                        state <= 1'b0;
+                        done <= 1;
+                    end else begin
+                        i <= i + 1;
+                    end
+                end
+            endcase
+        end
+    end
 endmodule
