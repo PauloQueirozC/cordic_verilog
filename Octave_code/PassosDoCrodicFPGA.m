@@ -1,73 +1,69 @@
-% Script para analisar a precisão da função CORDIC
-
 clear all; close all; clc;
-
-% --- 1. Configuração do Teste ---
-input_angles_int = -128:128; % Todas as entradas inteiras possíveis
-N_iteracoes = 8;          % Número de iterações do CORDIC
-
-% Ponto inicial para rotacionar. Um vetor na horizontal (ângulo 0) é ideal.
-% Usamos um valor grande para simular melhor a aritmética de ponto fixo.
-Vx_inicial = 10;
+% --- 1. Configurações ---
+fator_conv = 512 / 360;      % Fator de conversão de graus para inteiro
+angulos_desejados_deg = -180:0.5:180; % Faixa de ângulos para testar
+iteracoes = 8;               % Número de iterações do CORDIC
+Vx_inicial = 1000;           % Ponto inicial (1000, 0) para rotacionar
 Vy_inicial = 0;
 
-% Vetor para armazenar os ângulos alcançados (em graus)
-achieved_angles_deg = [];
+% Vetores para guardar os resultados
+angulos_alcancados_deg = [];
+total_pontos = length(angulos_desejados_deg);
 
-fprintf('Iniciando análise CORDIC para %d ângulos de entrada...\n', length(input_angles_int));
+fprintf('Iniciando análise de %d ângulos...\n', total_pontos);
 
-% --- 2. Laço de Execução e Coleta de Dados ---
-for ang_desejado_int = input_angles_int
-  % Executa o algoritmo CORDIC para o ponto e ângulo atuais
-  R = cordic_fpga(Vx_inicial, Vy_inicial, ang_desejado_int, N_iteracoes)
+% --- 2. Laço Principal de Teste ---
+for i = 1:total_pontos
+    ang_deg = angulos_desejados_deg(i);
 
-  % Calcula o ângulo real do ponto de saída usando atan2
-  % atan2 retorna o ângulo em radianos, tratando todos os quadrantes
-  angle_rad = atan2(R(2), R(1));
+    % Converte o ângulo em graus para o formato inteiro que o módulo espera
+    Z_int = round(ang_deg * fator_conv);
 
-  % Converte o ângulo de radianos para graus
-  angle_deg = angle_rad * (180 / pi);
+    % Garante que a entrada está no range permitido [-256, 255]
+    Z_int = max(-256, min(255, Z_int));
 
-  % Armazena o resultado
-  achieved_angles_deg(end+1) = angle_deg;
+    % Executa a sua função CORDIC
+    V_final = cordic_fpga(Vx_inicial, Vy_inicial, Z_int, iteracoes);
+    Rx = V_final(1);
+    Ry = V_final(2);
+
+    % Calcula o ângulo real alcançado a partir do ponto final
+    ang_alcancado_rad = atan2(Ry, Rx);
+    ang_alcancado_deg = ang_alcancado_rad * (180 / pi);
+
+    % Armazena o resultado
+    angulos_alcancados_deg(end+1) = ang_alcancado_deg;
+
+
 end
 
-fprintf('Análise completa.\n\n');
+fprintf('Análise concluída.\n');
 
-% --- 3. Análise dos Ângulos Únicos ---
-unique_angles = unique(achieved_angles_deg);
-num_inputs = length(input_angles_int);
-num_unique_outputs = length(unique_angles);
+% --- 3. Cálculo do Erro ---
+erro_deg = angulos_alcancados_deg - angulos_desejados_deg;
 
-fprintf('Número total de ângulos de entrada: %d\n', num_inputs);
-fprintf('Número de ângulos de saída únicos alcançados: %d\n', num_unique_outputs);
-fprintf('Isso mostra que o CORDIC quantiza os ângulos de saída.\n\n');
+% Corrige o "wrap-around" do erro em +/-180 graus
+erro_deg(erro_deg > 180) = erro_deg(erro_deg > 180) - 360;
+erro_deg(erro_deg < -180) = erro_deg(erro_deg < -180) + 360;
 
-% --- 4. Preparação para a Plotagem ---
-% Converte a entrada inteira (-64 a 64) para o ângulo em graus que ela representa
-% A escala é linear: 64 -> 90 graus
-input_angles_deg = input_angles_int * (45 / 64);
+% --- 4. Geração dos Gráficos ---
 
-% --- 5. Plotagem dos Resultados ---
-
-% Gráfico 1: Ângulo Alcançado vs. Ângulo Desejado
-figure;
-plot(input_angles_deg, achieved_angles_deg, 'b.', 'MarkerSize', 10); % Pontos azuis
+% GRÁFICO 1: Desejado vs. Alcançado
+figure(1);
+plot(angulos_desejados_deg, angulos_alcancados_deg, 'b.', 'MarkerSize', 5);
 hold on;
-plot(input_angles_deg, input_angles_deg, 'r-', 'LineWidth', 2); % Linha vermelha ideal (y=x)
+plot(angulos_desejados_deg, angulos_desejados_deg, 'r-', 'LineWidth', 2);
 grid on;
-title('Análise de Precisão CORDIC: Alcançado vs. Desejado');
-xlabel('Ângulo Desejado (Graus)');
-ylabel('Ângulo Alcançado (Graus)');
-legend('Ângulo Alcançado (CORDIC)', 'Resultado Ideal');
-axis([-100 100 -100 100]); % Ajusta o zoom do gráfico
+title('Análise de Rotação CORDIC: Ângulo Desejado vs. Ângulo Alcançado');
+xlabel('Ângulo Solicitado (Graus)');
+ylabel('Ângulo Real (Graus)');
+legend('Alcançado (CORDIC)', 'Ideal');
+axis([-180 180 -180 180]);
 
-% Gráfico 2: Erro de Rotação
-figure;
-error_deg = achieved_angles_deg - input_angles_deg;
-plot(input_angles_deg, error_deg, 'g-', 'LineWidth', 1.5);
+% GRÁFICO 2: Erro de Rotação
+figure(2);
+plot(angulos_desejados_deg, erro_deg, 'g');
 grid on;
-title('Erro de Rotação CORDIC');
-xlabel('Ângulo Desejado (Graus)');
+title('Erro de Rotação do Algoritmo CORDIC');
+xlabel('Ângulo Solicitado (Graus)');
 ylabel('Erro (Graus)');
-%axis([-100 100 -1 1]); % Ajusta o zoom do eixo Y para ver o erro
