@@ -1,17 +1,3 @@
-/*
- * Módulo CORDIC Redesenhado com Base de 9 Bits
- * Autor: Gemini AI (baseado no código de Ricardo Aguiar)
- * Data:  20 de setembro de 2025
- *
- * Descrição:
- * - Núcleo de cálculo de ângulo redesenhado para 9 bits.
- * - Mapeamento de 360 graus para 9 bits (0-511).
- * - Tabela atan_table recalculada para 9 bits.
- * - Lógica de quadrantes reintroduzida para rotação completa.
- * - Saídas de 11 bits (cos/sin) e 8 iterações (0 a 7).
- */
-
-// MUDANÇA: Novos defines para a tabela de 9 bits
 `define theta_0_9b 9'd64 // atan(2^0) = 45°    -> (45/360)*512 = 64
 `define theta_1_9b 9'd38 // atan(2^-1)= 26.56° -> (26.56/360)*512 = 38
 `define theta_2_9b 9'd20 // atan(2^-2)= 14.04° -> (14.04/360)*512 = 20
@@ -19,7 +5,7 @@
 `define theta_4_9b 9'd5  // atan(2^-4)= 3.58°  -> (3.58/360)*512 = 5
 `define theta_5_9b 9'd3  // atan(2^-5)= 1.79°  -> (1.79/360)*512 = 3
 `define theta_6_9b 9'd1  // atan(2^-6)= 0.90°  -> (0.90/360)*512 = 1
-`define theta_7_9b 9'd1  // atan(2^-7)= 0.45°  -> (0.45/360)*512 = 1
+`define theta_7_9b 9'd0  // atan(2^-7)= 0.45°  -> (0.45/360)*512 = 1
 
 module cordic_prop (
     // Saídas
@@ -85,16 +71,16 @@ module cordic_prop (
                         // MUDANÇA: Lógica de quadrantes restaurada para 9 bits
                         // Usa z0[8:7] para determinar o quadrante
                         if(z0[8:7] == 2'b00 || z0[8:7] == 2'b11) begin // Q1 (0-89) e Q4 (270-359)
-                            x <= 607; // 1000 / 1.646
+                            x <= 311; // 1000 / 1.646
                             y <= 0;
                             z <= z0;
                         end else if(z0[8:7] == 2'b01) begin // Q2 (90-179)
                             x <= 0;
-                            y <= 607;
+                            y <= 311;
                             z <= z0 - PI_DIV_2; // Subtrai 90 graus
                         end else if(z0[8:7] == 2'b10) begin // Q3 (180-269)
                             x <= 0;
-                            y <= 607;
+                            y <= 311;
                             z <= z0 + PI_DIV_2; // Adiciona 90 graus (para rotação reversa)
                         end
                         

@@ -1,0 +1,77 @@
+m255
+K4
+z2
+!s11f vlog 2020.1 2020.02, Feb 28 2020
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 d/home/pauloq/Documentos/cordic_verilog/verilog_code
+vcordic_prop
+Z1 !s110 1758653351
+!i10b 1
+!s100 Ya=2^`0EV`:c?9n4<:<NA1
+Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
+I[ez2Vdnl@;dD8`:L?PWzL1
+Z3 VDg1SIo80bB@j0V0VzS_@n1
+R0
+w1758649466
+8cordic_prop.v
+Fcordic_prop.v
+!i122 9
+L0 10 119
+Z4 OV;L;2020.1;71
+r1
+!s85 0
+31
+Z5 !s108 1758653351.000000
+!s107 cordic_prop.v|
+!s90 cordic_prop.v|
+!i113 1
+Z6 tCvgOpt 0
+vtb_cordic
+R1
+!i10b 1
+!s100 _2JO^`<eP_CGiUPPXMm_l2
+R2
+IhS]XVa@Y>M=eAi31WBK<j3
+R3
+R0
+w1758653344
+Z7 8tb_cordic.v
+Z8 Ftb_cordic.v
+!i122 10
+Z9 L0 3 86
+R4
+r1
+!s85 0
+31
+R5
+Z10 !s107 tb_cordic.v|
+Z11 !s90 tb_cordic.v|
+!i113 1
+R6
+vtb_cordic_completo
+!s110 1758651224
+!i10b 1
+!s100 @m;OzanRkJL@fOLYzAgYE3
+R2
+Il2EVSlW6`;mE]LZ=U?SmP1
+R3
+R0
+w1758651219
+R7
+R8
+!i122 2
+R9
+R4
+r1
+!s85 0
+31
+!s108 1758651224.000000
+R10
+R11
+!i113 1
+R6
