@@ -11,12 +11,12 @@ function V = cordic_fpga(Vx, Vy, Z, iteracoes)
   Vy = fix(Vy * 2^-1) + fix(Vy * 2^-4) + fix(Vy * 2^-5) + fix(Vy * 2^-7) + fix(Vy * 2^-8);
 
   ## Rotação Inicial
-  if Z > 128
+  if Z >= 128
     temp_Vx = Vx;
     Vx = -Vy;
 		Vy =  temp_Vx;
 		Z  =  Z - 128;
-  elseif Z < (-128)
+  elseif Z <= (-128)
     temp_Vx = Vx;
     Vx =  Vy;
 		Vy = -temp_Vx;
@@ -25,8 +25,10 @@ function V = cordic_fpga(Vx, Vy, Z, iteracoes)
 
   # Cordic
   V = [Vx, Vy, Z];
-  for i = 0 : iteracoes-1
-    V = cordic_unit_fpga(V(1), V(2), V(3), i, atan(i+1));
-  end
+  if(Z != 0)
+    for i = 0 : iteracoes-1
+      V = cordic_unit_fpga(V(1), V(2), V(3), i, atan(i+1));
+    end
+  endif
   V = [fix(V(1)/ajustePF), fix(V(2)/ajustePF), V(3)];
 endfunction
