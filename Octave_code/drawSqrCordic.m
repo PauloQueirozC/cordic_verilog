@@ -22,18 +22,10 @@ function img = drawSqrCordic(size, ang)
   img(:, 1) = 0;
   img(:, end) = 0;
 
-  [altura, largura] = size(img);
   coords_x = [V1_center(1), V2_center(1), V3_center(1), V4_center(1)];
   coords_y = [V1_center(2), V2_center(2), V3_center(2), V4_center(2)];
 
-  mascara = poly2mask(coords_x, coords_y, altura, largura);
-
-
-  img_modificada = img;
-
-
-  img_modificada(mascara) = 128;
-  img = img_modificada;
+  img = drawPoli(coords_x, coords_y);
 end
 
 

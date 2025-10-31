@@ -30,8 +30,8 @@ module cordic_seq(R_Vx, R_Vy, Vx, Vy, Z0);
 	wire signed [18:0] Vy_stages [0:8];
 	wire signed [8:0]  Z_stages  [0:8];
 	
-	assign R_Vx = Vx_stages[8][18] ? (Vx_stages[8] >>> 8)+1 : Vx_stages[8] >>> 8;
-	assign R_Vy = Vy_stages[8][18] ? (Vy_stages[8] >>> 8)+1 : Vy_stages[8] >>> 8;
+	assign R_Vx = (Vx_stages[8][18] ? (Vx_stages[8] >>> 8)+1 : Vx_stages[8] >>> 8);
+	assign R_Vy = (Vy_stages[8][18] ? (Vy_stages[8] >>> 8)+1 : Vy_stages[8] >>> 8);
 	
 	pre_cordic pre_cordic(
 		.c_Vx(Vx_stages[0]), 
