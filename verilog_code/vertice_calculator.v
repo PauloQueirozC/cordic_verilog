@@ -19,11 +19,11 @@ module vertice_calculator(
 	output [9:0] v3_y,
 	output [9:0] v4_x,
 	output [9:0] v4_y,
-	output    	  out_form,
+	output    	 out_form,
 	output [8:0] out_st2_color,
    output [9:0] out_st2_pixel_x,
    output [9:0] out_st2_pixel_y,
-   output 		  out_st2_bubble
+   output 		 out_st2_bubble
 	/*
 	output reg [9:0] v1_x,
 	output reg [9:0] v1_y,
@@ -39,165 +39,67 @@ module vertice_calculator(
    output reg [9:0] out_st2_pixel_y,
    output reg 		  out_st2_bubble*/
 );
-
+	// Wires pipeline dos vetores
+	wire [18:0] v1_x_nst1;
+	wire [18:0] v1_y_nst1;
+	wire [18:0] v2_x_nst1;
+	wire [18:0] v2_y_nst1;
+	wire [18:0] v3_x_nst1;
+	wire [18:0] v3_y_nst1;
+	wire [18:0] v4_x_nst1;
+	wire [18:0] v4_y_nst1;
+	
+	// Wires pipeline do angle_z
+	wire [8:0] angle_z_nst1;
+	
+	// Wires pipeline enable_cordic
+	wire enable_cordic_nst1;
+	
+	// Wires pipeline form,
+	wire    	 out_nst1_form;
+	
+	// Wires pipeline color
+	wire [8:0] out_nst1_color;
+	
+	// Wires pipeline pixel
+   wire [9:0] out_nst1_pixel_x;
+   wire [9:0] out_nst1_pixel_y;
+	
+	//wire pipeline bolha
+   wire 		  out_nst1_bubble;
+	
 	// Calculo inicial dos vetores
-	init_cordic (
-		clk,
-		reset,
-		st2_bubble,
-		st2_color,
-		st2_pixel_x,
-		st2_pixel_y,
-		ref_point_x,
-		ref_point_y,
-		angle,
-		form,
-		size,
+	init_cordic init_cordic_inst(
+		.clk(clk),
+		.reset(reset),
+		.st2_bubble(st2_bubble),
+		.st2_color(st2_color),
+		.st2_pixel_x(st2_pixel_x),
+		.st2_pixel_y(st2_pixel_y),
+		.ref_point_x(ref_point_x),
+		.ref_point_y(ref_point_y),
+		.angle(angle),
+		.form(form),
+		.size(size),
 		
-		v1_x,
-		v1_y,
-		v2_x,
-		v2_y,
-		v3_x,
-		v3_y,
-		v4_x,
-		v4_y,
-		angle_cordic,
-		enable_cordic,
+		.v1_x(v1_x_nst1),
+		.v1_y(v1_y_nst1),
+		.v2_x(v2_x_nst1),
+		.v2_y(v2_y_nst1),
+		.v3_x(v3_x_nst1),
+		.v3_y(v3_y_nst1),
+		.v4_x(v4_x_nst1),
+		.v4_y(v4_y_nst1),
+		.angle_cordic(angle_z_nst1),
+		.enable_cordic(enable_cordic_nst1),
 		
-		out_form,
-		out_st2_color,
-		out_st2_pixel_x,
-		out_st2_pixel_y,
-		out_st2_bubble
+		.out_form(out_st1_form),
+		.out_st2_color(out_st1_color),
+		.out_st2_pixel_x(out_nst1_pixel_x),
+		.out_st2_pixel_y(out_nst1_pixel_y),
+		.out_st2_bubble(out_nst1_bubble),
+		.out_ref_point_x(out_ref_point_x),
+		.out_ref_point_y(out_ref_point_y)
 	);
 
-endmodule
-
-module init_cordic(
-	input wire       clk,
-	input wire       reset,
-	input wire       st2_bubble,
-	input wire [8:0] st2_color,
-	input wire [9:0] st2_pixel_x,
-	input wire [9:0] st2_pixel_y,
-	input wire [8:0] ref_point_x,
-	input wire [8:0] ref_point_y,
-	input wire signed [8:0] angle,
-	input wire 		  form,
-	input wire [6:0] size,
-	
-	output reg signed [18:0] v1_x,
-	output reg signed [18:0] v1_y,
-	output reg signed [18:0] v2_x,
-	output reg signed [18:0] v2_y,
-	output reg signed [18:0] v3_x,
-	output reg signed [18:0] v3_y,
-	output reg signed [18:0] v4_x,
-	output reg signed [18:0] v4_y,
-	output reg signed [8:0]  angle_cordic,
-	output reg 					 enable_cordic,
-	
-	output reg		  out_form,
-	output reg [8:0] out_st2_color,
-   output reg [9:0] out_st2_pixel_x,
-   output reg [9:0] out_st2_pixel_y,
-   output reg 		  out_st2_bubble
-);
-	// Pre escalonamento das cordenadas do poligono centrado na origem
-	wire signed [18:0] cord_0, cord_pos, cord_neg, cord_base;
-	
-	assign cord_0   	= 18'b0;
-	assign cord_base 	= {4'b0, size};
-	assign cord_pos   = ((cord_base>>>1) + (cord_base>>>4)) + (((cord_base>>>5) + (cord_base>>>7)) + (cord_base>>>8));
-	assign cord_neg	= - cord_pos;
-	
-	// Pre rotaçao dos vetores
-	reg signed [18:0] 	next_v1_x, next_v1_y, 
-								next_v2_x, next_v2_y,
-								next_v3_x, next_v3_y, 
-								next_v4_x, next_v4_y;
-	reg signed [8:0] 	next_angle_cordic;
-	
-	always @(*) begin
-		case (angle[8:7])
-			2'b01: begin
-				next_v1_x	= (form == 1'b0) ? cord_pos : cord_0;
-				next_v1_y	= cord_neg;
-				
-				next_v2_x	= cord_pos;
-				next_v2_y	= cord_pos;
-				
-				next_v3_x	= cord_neg;
-				next_v3_y	= cord_pos;
-				
-				next_v4_x	= (form == 1'b0) ? cord_neg  : 18'd0;
-				next_v4_y	= (form == 1'b0) ? cord_neg  : 18'd0;
-				
-				next_angle_cordic =  angle;
-			end
-			2'b10: begin
-				next_v1_x	= (form == 1'b0) ? cord_neg : cord_0;
-				next_v1_y	= cord_pos;
-				
-				next_v2_x	= cord_neg;
-				next_v2_y	= cord_neg;
-				
-				next_v3_x	= cord_pos;
-				next_v3_y	= cord_neg;
-				
-				next_v4_x	= (form == 1'b0) ? cord_pos  : 18'd0;
-				next_v4_y	= (form == 1'b0) ? cord_pos  : 18'd0;
-				
-				next_angle_cordic	=  angle + 9'b010000000;
-			end
-			default: begin
-				next_v1_x	= (form == 1'b0) ? cord_neg : cord_0;
-				next_v1_y	= cord_neg;
-				
-				next_v2_x	= cord_neg;
-				next_v2_y	= cord_pos;
-				
-				next_v3_x	= cord_pos;
-				next_v3_y	= cord_pos;
-				
-				next_v4_x	= (form == 1'b0) ? cord_pos  : 18'd0;
-				next_v4_y	= (form == 1'b0) ? cord_neg  : 18'd0;
-				
-				next_angle_cordic =  angle;
-			end
-		endcase
-	end
-	
-	// calculon do enable cordic
-	wire next_enable_cordic;
-	assign next_enable_cordic = next_angle_cordic != 9'b0;
-	
-	// Enviando os dados para proximo estagio
-	always @(posedge clk) begin
-		out_st2_color   	<= st2_color;
-		out_st2_pixel_x 	<= st2_pixel_x;
-		out_st2_pixel_y 	<= st2_pixel_y;
-		out_form  			<= form;
-	
-		v1_x <= next_v1_x;
-		v1_y <= next_v1_y; 
-		v2_x <= next_v2_x;
-		v2_y <= next_v2_y;
-		v3_x <= next_v3_x;
-		v3_y <= next_v3_y; 
-		v4_x <= next_v4_x;
-		v4_y <= next_v4_y;
-		angle_cordic <= next_angle_cordic;
-		enable_cordic <= next_enable_cordic;
-	end
-
-	always @(posedge clk or negedge reset) begin
-		if(!reset) begin
-			out_st2_bubble <= 1'b0;	
-		end
-		else begin
-			out_st2_bubble <= st2_bubble;
-		end
-	end
 endmodule
