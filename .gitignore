@@ -1,16 +1,81 @@
-#Intel Quartus generated files
+# --- Intel/Altera Quartus Prime & II ---
+# Ignora arquivos de projeto temporários e de sessão
+*.qws
+*.bak
+*.BAK
+*.qar
+*.qarlog
+*.smsg
+*~
 
-# 1. Pastas de Compilação
+# --- Pastas de Build e Compilação ---
+# Contêm todos os resultados da compilação e podem ser recriados.
 db/
 incremental_db/
+output_files/   # Padrão do Quartus Prime
+_output_files/  # Padrão legado do Quartus II
+timing/
+hps_isw_handoff/ # Para projetos SoC (HPS)
 
-# 2. Pasta de Saída
-output_files/
+# --- Arquivos de Saída e Programação (Binários) ---
+# Geralmente não são versionados, a menos que você queja
+# salvar um binário de "release" específico.
+*.sof
+*.pof
+*.jic
+*.rpd
+*.rbf
+*.map
+*.hex # Cuidado: Só ignore se você NÃO usa .hex como entrada de ROM
+*.out
 
-# 3. Configurações do Usuário
-*.qws
+# --- Relatórios (Reports) ---
+# Todos são gerados durante a compilação
+*.rpt
+*.summary
+*.html
+*.htm
+*.xml       # Relatórios de timing, etc.
+*.txt       # A maioria dos .txt do Quartus são relatórios
+*.log
+*.jdi
+*.pin       # Pin-out file (gerado)
+*.eqn       # Equation file (gerado)
+*.done
 
-# 4. Arquivos Temporários e de Simulação
-*.bak
-*.vwf
+# --- Arquivos de Simulação ---
+# Ignora pastas de simulação e arquivos gerados
 simulation/
+*/simulation/
+*/*_sim/
+*.vcd       # Saída de simulação
+*.wlf       # ModelSim wave log file
+transcript  # ModelSim transcript file
+modelsim.ini
+
+# --- Arquivos Gerados por IP/Qsys/Platform Designer ---
+# Ignora arquivos "inst" gerados e declarações de componentes
+*_inst.v
+*_inst.vhd
+*_inst.sv
+*.cmp
+*_generation_script*
+*.sopc_builder
+*sopc_*
+*.ip
+
+# --- O QUE NÃO IGNORAR (Exceções) ---
+# Use '!' para forçar a inclusão de arquivos que
+# bateram em uma regra acima.
+
+# NÃO ignore arquivos de restrição SDC! Eles são fonte.
+!*.sdc
+
+# NÃO ignore arquivos de inicialização de memória!
+!*.mif
+
+# Se você usa .hex como ENTRADA de ROM, adicione uma exceção:
+# !meu_arquivo_de_rom.hex
+
+# É melhor NÃO ignorar .tcl por padrão,
+# pois eles são usados como fonte pelo Platform Designer.
