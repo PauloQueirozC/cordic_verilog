@@ -36,6 +36,7 @@ module init_cordic(
 	
 	assign cord_0   	= 18'b0;
 	assign cord_base 	= {4'b0, size};
+	//assign cord_pos   = (cord_base * 9'sd155) >>> 8;
 	assign cord_pos   = ((cord_base>>>1) + (cord_base>>>4)) + (((cord_base>>>5) + (cord_base>>>7)) + (cord_base>>>8));
 	assign cord_neg	= - cord_pos;
 	
