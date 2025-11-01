@@ -14,6 +14,7 @@ module stageCordicPrescale(
 		
 		output reg	signed	[18:0] cord_pos,
 		output reg	signed	[18:0] cord_neg,
+		output reg					 	 enabel_cordic,
 		output reg			out_nst1_form,
 		output reg	[8:0]	out_nst1_color,
 		output reg	[9:0]	out_nst1_pixel_x,
@@ -24,10 +25,12 @@ module stageCordicPrescale(
 		output reg	signed [8:0] out_nst1_angle
 	);
 	
-	wire signed [18:0] next_cord_pos, next_cord_neg, cord_base;
-
-	assign cord_base 	= {4'b0, size, 8'b0};
-	assign next_cord_pos   = (cord_base * 9'sd155) >>> 8;
+	wire signed [37:0] next_cord_pos, next_cord_neg, cord_base;
+	wire next_enabel_cordic;
+	
+	assign next_enabel_cordic = |nst1_angle[6:0];
+	assign cord_base 	= {23'b0, size, 8'b0};
+	assign next_cord_pos = (next_enabel_cordic) ? (cord_base * 19'sd155) >>> 8 : cord_base;
 	assign next_cord_neg	= - next_cord_pos;
 	
 	always @(posedge clk) begin
@@ -38,7 +41,8 @@ module stageCordicPrescale(
 		out_nst1_ref_point_x		<= nst1_ref_point_x;
 		out_nst1_ref_point_y		<= nst1_ref_point_y;
 		out_nst1_angle				<= nst1_angle;
-	
+		
+		enabel_cordic <= next_enabel_cordic;						
 		cord_pos <= next_cord_pos;
 		cord_neg <= next_cord_neg;
 	end

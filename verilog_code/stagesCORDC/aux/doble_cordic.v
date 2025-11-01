@@ -7,7 +7,7 @@ module doble_cordic(
 	input wire signed 	[2:0]		i
 );
 	wire signed [18:0]	stp_Vx, stp_Vy;
-	wire signed [8:0]		stp_Z;
+	wire signed [8:0]		stp_z;
 	
 	cordic_unit stp1_cordic(
 		.RVx(stp_Vx),
@@ -30,5 +30,6 @@ module doble_cordic(
 		.i(i+1), 
 		.atan(atan1)
 	);
+	
 	
 endmodule
