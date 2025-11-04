@@ -26,7 +26,7 @@ module doble_cordic(
 		.new_Z(new_Z), 
 		.Vx(stp_Vx), 
 		.Vy(stp_Vy), 
-		.Z(stp_Z), 
+		.Z(stp_z), 
 		.i(i+1), 
 		.atan(atan1)
 	);

@@ -170,7 +170,6 @@ set_global_assignment -name VERILOG_FILE cordic.v
 set_global_assignment -name VERILOG_FILE test_b.v
 set_global_assignment -name VERILOG_FILE rom.v
 set_global_assignment -name VERILOG_FILE cordic_prop.v
-set_global_assignment -name VERILOG_FILE output_files/main.v
 set_global_assignment -name VERILOG_FILE teste_cordic_prop.v
 set_global_assignment -name VERILOG_FILE signed_to_7seg.v
 set_global_assignment -name VERILOG_FILE tb_cordic.v
