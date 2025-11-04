@@ -43,8 +43,8 @@ module stageCordicPrescale(
 		out_nst1_angle				<= nst1_angle;
 		
 		enabel_cordic <= next_enabel_cordic;						
-		cord_pos <= next_cord_pos;
-		cord_neg <= next_cord_neg;
+		cord_pos <= next_cord_pos[18:0];
+		cord_neg <= next_cord_neg[18:0];
 	end
 	
 	always @(posedge clk or negedge reset) begin
