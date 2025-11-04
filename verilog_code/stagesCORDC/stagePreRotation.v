@@ -53,8 +53,10 @@ module stagePreRotation(
 				next_nst2_v3_x	= cord_neg;
 				next_nst2_v3_y	= cord_pos;
 				
-				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
-				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
+				next_nst2_v4_x	= cord_neg;
+				next_nst2_v4_y	= cord_neg;
+//				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
+//				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
 				
 				next_nst2_z =  nst2_angle - 9'b010000000;
 			end
@@ -68,8 +70,10 @@ module stagePreRotation(
 				next_nst2_v3_x	= cord_pos;
 				next_nst2_v3_y	= cord_neg;
 				
-				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
-				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
+				next_nst2_v4_x	= cord_pos;
+				next_nst2_v4_y	= cord_pos;
+//				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
+//				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
 				
 				next_nst2_z	=  nst2_angle + 9'b010000000;
 			end
@@ -83,8 +87,10 @@ module stagePreRotation(
 				next_nst2_v3_x	= cord_neg;
 				next_nst2_v3_y	= cord_neg;
 				
-				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
-				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
+				next_nst2_v4_x	= cord_neg;
+				next_nst2_v4_y	= cord_pos;
+//				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
+//				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
 				
 				next_nst2_z =  nst2_angle - 9'b100000000;
 			end
@@ -98,8 +104,10 @@ module stagePreRotation(
 				next_nst2_v3_x	= cord_pos;
 				next_nst2_v3_y	= cord_pos;
 				
-				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
-				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
+				next_nst2_v4_x	= cord_pos;
+				next_nst2_v4_y	= cord_neg;
+//				next_nst2_v4_x	= (nst2_form == 1'b0) ? cord_pos  : 19'd0;
+//				next_nst2_v4_y	= (nst2_form == 1'b0) ? cord_neg  : 19'd0;
 				
 				next_nst2_z =  nst2_angle;
 			end
